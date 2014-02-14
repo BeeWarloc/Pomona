@@ -185,6 +185,20 @@ namespace Pomona.SystemTests
         }
 
 
+
+        [Test]
+        public void PatchLazyCritter_UpdateStringProperty()
+        {
+            var entity = Save(new EtaggedEntity() { Info = "lalala" });
+            var resource = Client.EtaggedEntities.GetLazy(entity.Id);
+            WebClientRequestMessage request = null;
+            Client.Patch(resource,
+                x => x.Info = "NewName", o => o.ModifyRequest(wrm => request = wrm));
+
+            Assert.That(RequestLog.Select(x => x.Method), Is.EquivalentTo(new[] { "PATCH" }));
+            Assert.That(entity.Info, Is.EqualTo("NewName"));
+        }
+
         [Test]
         public void PatchCritter_WithPatchOptionExpandWeapons_ExpandsWeapons()
         {

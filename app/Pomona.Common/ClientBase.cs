@@ -361,8 +361,12 @@ namespace Pomona.Common
 
         private object PatchServerType(object postForm, RequestOptions requestOptions)
         {
-            var uri = ((IHasResourceUri)((IDelta)postForm).Original).Uri;
-            AddIfMatchToPatch(postForm, requestOptions);
+            var original = ((IDelta)postForm).Original;
+            var originalAsLazyProxy = original as LazyProxyBase;
+            var uri = ((IHasResourceUri)original).Uri;
+
+            if (originalAsLazyProxy == null || originalAsLazyProxy.IsLoaded)
+                AddIfMatchToPatch(postForm, requestOptions);
 
             return SendRequestAndDeserialize(uri, postForm, "PATCH", requestOptions);
         }

@@ -25,6 +25,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using Pomona.Common.Proxies;
 using Pomona.Common.TypeSystem;
 
 namespace Pomona.Common.Serialization.Patch
@@ -98,8 +100,10 @@ namespace Pomona.Common.Serialization.Patch
             {
                 DetachFromParent(trackedValue);
             }
+            var lazyProxy = Original as ILazyProxy;
+            var isLoaded = lazyProxy == null || lazyProxy.IsLoaded;
             PropertySpec prop;
-            if (TryGetPropertyByName(propertyName, out prop) && prop.PropertyType.SerializationMode == TypeSerializationMode.Value)
+            if (isLoaded && TryGetPropertyByName(propertyName, out prop) && prop.PropertyType.SerializationMode == TypeSerializationMode.Value)
             {
                 object oldValue = prop.Getter(Original);
                 if ((value != null && value.Equals(oldValue)) || (value == null && oldValue == null))
